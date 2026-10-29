@@ -77,10 +77,12 @@ jobs:
       - name: API 回归
         env:
           PANEL_BASE: http://127.0.0.1:3099
+          PANEL_CI: '1'
         run: node tests/api-test.mjs 'ci-password-123'
       - name: 功能回归（文件 / 压测 / 终端）
         env:
           PANEL_BASE: http://127.0.0.1:3099
+          PANEL_CI: '1'
         run: node tests/feature-test.mjs 'ci-password-123'
 
   # 浏览器交互回归：装 Playwright Chromium 后跑 UI 测试

@@ -219,7 +219,9 @@ await page.waitForTimeout(2000);
 const coreRows = await page.locator('#cpu-table table tbody tr').count();
 rec('CPU', 'CPU 详情页每核明细', coreRows >= 1, `${coreRows} 行`);
 const coreRowText = await page.locator('#cpu-table table tbody tr').first().textContent();
-rec('CPU', '明细含频率列', /MHz/.test(coreRowText), coreRowText.replace(/\s+/g,' ').trim());
+// CI 虚拟机可能没有 cpufreq，频率列显示「—」属正常
+rec('CPU', '明细含频率列', /MHz/.test(coreRowText) || (CI_MODE && /—|-/.test(coreRowText)),
+  coreRowText.replace(/\s+/g,' ').trim() + (CI_MODE ? '（CI：无 cpufreq 时允许 —）' : ''));
 rec('CPU', '概况显示物理核心', !(await page.textContent('#cpu-summary')).includes('— 核'), '');
 
 await page.click('.nav-item[data-route="disk"]');

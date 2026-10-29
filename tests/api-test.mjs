@@ -1,4 +1,16 @@
 const BASE = process.env.PANEL_BASE || 'http://127.0.0.1:3081';
+// PANEL_CI=1：GitHub Actions 等无 GPU / hwmon / cpufreq 的虚拟机上，跳过硬件相关断言
+const CI_MODE = process.env.PANEL_CI === '1';
+const skipped = [];
+function noteSkip(name, detail) {
+  skipped.push({ name, detail });
+  console.log(`⏭️  [跳过] ${name}${detail ? ' — ' + detail : ''}`);
+}
+/** CI 模式下硬件缺失时跳过，否则按原断言判定 */
+function recHw(group, name, ok, detail) {
+  if (!ok && CI_MODE) noteSkip(`${group} · ${name}`, `CI 环境无对应硬件（${detail || ''}）`);
+  else rec(group, name, ok, detail);
+}
 let cookie = '', csrf = '';
 const PASSWORD = process.argv[2];
 
@@ -65,14 +77,14 @@ r = await call('/api/metrics/latest');
 const m = r.body.data || {};
 rec('监控', '实时指标快照', r.body.ok && m.cpu, `CPU ${m.cpu?.percent}% / 内存 ${m.memory?.usedPercent}% / 温度 ${m.sensors?.cpuTemp}°C`, r.ms);
 rec('监控', '├ CPU 分核数据', m.cpu?.perCore?.length > 0, `${m.cpu?.perCore?.length} 核`);
-rec('监控', '├ CPU 频率与降频判定', m.cpu?.freq?.averageMhz > 0, `${m.cpu.freq.averageMhz}MHz, 降频=${m.cpu?.throttle?.throttled}`);
+recHw('监控', '├ CPU 频率与降频判定', m.cpu?.freq?.averageMhz > 0, `${m.cpu.freq.averageMhz}MHz, 降频=${m.cpu?.throttle?.throttled}`);
 rec('监控', '├ 内存与 Swap', m.memory?.total > 0, `${(m.memory.used / 1e9).toFixed(1)}/${(m.memory.total / 1e9).toFixed(1)}GB, swap ${m.memory.swapPercent}%`);
 rec('监控', '├ 负载', m.load?.load1 !== undefined, `${m.load?.load1}/${m.load?.load5}/${m.load?.load15}`);
 rec('监控', '├ 磁盘 IO', Array.isArray(m.disks) && m.disks.length > 0, m.disks?.map(d => d.name).join(','));
 rec('监控', '├ 文件系统', m.filesystems?.length > 0, m.filesystems?.map(f => `${f.mountPoint}(${f.usedPercent}%)`).join(' '));
 rec('监控', '├ 网络接口', m.network?.interfaces?.length > 0, m.network?.interfaces?.map(n => n.name).join(','));
 rec('监控', '├ 网卡链路状态', m.network?.links?.length > 0, m.network?.links?.map(l => `${l.name}=${l.operstate}`).join(' '));
-rec('监控', '├ 温度传感器', m.sensors?.all?.length > 0, m.sensors?.all?.map(s => `${s.label}=${s.value}°C`).join(' '));
+recHw('监控', '├ 温度传感器', m.sensors?.all?.length > 0, m.sensors?.all?.map(s => `${s.label}=${s.value}°C`).join(' '));
 rec('监控', '├ GPU 数据', m.sensors?.gpuTemp !== undefined, `GPU ${m.sensors?.gpuTemp}°C, 占用 ${m.sensors?.gpuBusyPercent}%, 功耗 ${m.sensors?.gpuPowerW}W`);
 rec('监控', '├ PSI 压力', !!m.pressure?.cpu, `cpu=${m.pressure?.cpu?.some?.avg10}, mem=${m.pressure?.memory?.some?.avg10}, io=${m.pressure?.io?.some?.avg10}`);
 rec('监控', '└ 运行时长', m.uptime?.uptimeSeconds > 0, `${(m.uptime.uptimeSeconds / 3600).toFixed(1)} 小时`);
@@ -133,7 +145,7 @@ rec('扩展', '定时任务', r.body.jobs?.length >= 0, `${r.body.jobs?.length} 
 rec('扩展', '└ 周期性目录', Object.keys(r.body.periodic || {}).length === 4, Object.entries(r.body.periodic || {}).map(([k, v]) => `${k.split('/').pop()}:${v.length}`).join(' '));
 
 r = await call('/api/sensors');
-rec('扩展', '传感器总览', r.body.temps?.length > 0, `${r.body.temps?.length} 温度 / ${r.body.power?.length} 功耗 / ${r.body.voltages?.length} 电压`, r.ms);
+recHw('扩展', '传感器总览', r.body.temps?.length > 0, `${r.body.temps?.length} 温度 / ${r.body.power?.length} 功耗 / ${r.body.voltages?.length} 电压`, r.ms);
 const pw = r.body.power?.find(p => p.unit === 'W');
 rec('扩展', '└ 功耗单位正确性', !pw || pw.value < 500, pw ? `${pw.label}=${pw.value}W (应 <500W)` : '无功耗传感器');
 
@@ -171,18 +183,18 @@ console.log('\n═══ 4.5 新增检测能力 ═══');
 r = await call('/api/gpu');
 const gpu = r.body.gpu || {};
 rec('显存', 'GPU 信息接口', r.body.ok && gpu.available, `${gpu.model || '—'}`, r.ms);
-rec('显存', '├ 显存总量', gpu.vram?.total > 0, `${fmtG(gpu.vram?.total)}`, r.ms);
+recHw('显存', '├ 显存总量', gpu.vram?.total > 0, `${fmtG(gpu.vram?.total)}`, r.ms);
 rec('显存', '├ 显存已用', gpu.vram?.used >= 0, `${fmtG(gpu.vram?.used)} (${gpu.vram?.percent}%)`);
-rec('显存', '├ GTT 共享显存', gpu.gtt?.total > 0, `${fmtG(gpu.gtt?.used)} / ${fmtG(gpu.gtt?.total)}`);
-rec('显存', '├ GPU 温度/功耗', gpu.tempC !== null, `${gpu.tempC}°C / ${gpu.powerW}W`);
-rec('显存', '└ 频率与电压', gpu.sclkMhz > 0, `sclk=${gpu.sclkMhz}MHz mclk=${gpu.mclkMhz}MHz vddgfx=${gpu.vddgfxMv}mV`);
+recHw('显存', '├ GTT 共享显存', gpu.gtt?.total > 0, `${fmtG(gpu.gtt?.used)} / ${fmtG(gpu.gtt?.total)}`);
+recHw('显存', '├ GPU 温度/功耗', gpu.tempC !== null, `${gpu.tempC}°C / ${gpu.powerW}W`);
+recHw('显存', '└ 频率与电压', gpu.sclkMhz > 0, `sclk=${gpu.sclkMhz}MHz mclk=${gpu.mclkMhz}MHz vddgfx=${gpu.vddgfxMv}mV`);
 
 r = await call('/api/cpu/cores');
 const cores = r.body.cores || [];
 rec('CPU', '分核数据接口', r.body.ok && cores.length > 0, `${r.body.coreCount} 核`, r.ms);
 rec('CPU', '├ 每核使用率', cores.every(c => typeof c.percent === 'number'), `核0=${cores[0]?.percent}%`);
 rec('CPU', '├ 每核用户/系统/等待', cores.every(c => c.user !== undefined && c.system !== undefined && c.iowait !== undefined), `核0: user=${cores[0]?.user} sys=${cores[0]?.system} io=${cores[0]?.iowait}`);
-rec('CPU', '├ 每核频率', cores.filter(c => c.mhz > 0).length > 0, `${cores.filter(c => c.mhz > 0).length}/${cores.length} 核有频率读数`);
+recHw('CPU', '├ 每核频率', cores.filter(c => c.mhz > 0).length > 0, `${cores.filter(c => c.mhz > 0).length}/${cores.length} 核有频率读数`);
 rec('CPU', '└ 降频判定含百分比', typeof r.body.throttle?.percentOfMax === 'number', `${r.body.throttle?.percentOfMax}% of max`);
 
 r = await call('/api/disks/info');
@@ -314,7 +326,7 @@ for (const [g, v] of Object.entries(byGroup)) {
   console.log(`  ${g.padEnd(10)} ${v.pass}/${v.total} ${v.pass === v.total ? '✅' : '❌'}`);
 }
 const passed = results.filter(x => x.ok).length;
-console.log(`\n总计: ${passed}/${results.length} 通过`);
+console.log(`\n总计: ${passed}/${results.length} 通过${skipped.length ? `（${skipped.length} 项因 CI 环境无硬件而跳过）` : ''}`);
 const failed = results.filter(x => !x.ok);
 if (failed.length) {
   console.log('\n失败项:');
