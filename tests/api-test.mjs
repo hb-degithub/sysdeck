@@ -172,7 +172,7 @@ r = await call('/api/disks/queue');
 rec('扩展', '磁盘调度器', r.body.disks?.length > 0, r.body.disks?.map(d => `${d.device}(${d.activeScheduler},${d.rotational ? 'HDD' : 'SSD'})`).join(' '), r.ms);
 
 r = await call('/api/pci');
-rec('扩展', 'PCI 设备', r.body.devices?.length > 0, `${r.body.devices?.length} 个`, r.ms);
+recHw('扩展', 'PCI 设备', r.body.devices?.length > 0, `${r.body.devices?.length} 个`);
 
 r = await call('/api/interfaces/stats');
 rec('扩展', '网卡详细统计', r.body.interfaces?.length > 0, `${r.body.interfaces?.length} 块网卡`, r.ms);
