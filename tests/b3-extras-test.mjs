@@ -430,7 +430,12 @@ async function testCpuGpuSamples(client) {
   const result = status.lastResult || {};
   const samples = Array.isArray(result.samples) ? result.samples : [];
   rec(group, 'CPU 结果包含 detail.samples', samples.length > 0, `samples=${samples.length}`);
-  rec(group, '├ 每项有 t 且至少一个 CPU 字段', samples.every((s) => Number.isFinite(s.t) && (typeof s.cpuFreqMhz === 'number' || typeof s.cpuTempC === 'number')), JSON.stringify(samples[0]));
+  const cpuFields = samples.filter((s) => typeof s.cpuFreqMhz === 'number' || typeof s.cpuTempC === 'number');
+  if (cpuFields.length === 0) {
+    skip('GPU 采样 CPU 字段', '宿主没有 cpufreq / hwmon（CI 容器常见），跳过');
+  } else {
+    rec(group, '├ 每项有 t 且至少一个 CPU 字段', samples.every((s) => Number.isFinite(s.t) && (typeof s.cpuFreqMhz === 'number' || typeof s.cpuTempC === 'number')), JSON.stringify(samples[0]));
+  }
   const gpuKeys = ['gpuBusy', 'gpuTempC', 'gpuPowerW', 'gpuVramPercent'];
   const withGpu = samples.filter((s) => gpuKeys.some((key) => typeof s[key] === 'number'));
   rec(group, '└ GPU 字段存在则记录（有则数值，无则跳过）', samples.every((s) => gpuKeys.every((key) => s[key] === undefined || typeof s[key] === 'number')), withGpu.length ? `${withGpu.length} 个采样含 GPU 字段` : '本机无 GPU 传感器，已跳过');

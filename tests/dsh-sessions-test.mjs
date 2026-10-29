@@ -188,7 +188,7 @@ function testMapMessages() {
 
 function testWorkspaceDecode() {
   const group = 'workspace';
-  rec(group, '目录名解码（~hex → 字符）', decodeWorkspaceName('--home-user-~9879~76EE~6A21~677F--') === '/home/user/project', decodeWorkspaceName('--home-user-~9879~76EE~6A21~677F--'));
+  rec(group, '目录名解码（~hex → 字符）', decodeWorkspaceName('--home-user-~9879~76EE~6A21~677F--') === '/home/user/项目模板', decodeWorkspaceName('--home-user-~9879~76EE~6A21~677F--'));
   rec(group, '普通 ASCII 目录名', decodeWorkspaceName('--home-user-project--') === '/home/user/project');
 }
 

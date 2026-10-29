@@ -49,9 +49,10 @@ jobs:
         with:
           node-version: '22'
       - name: 准备隔离实例
+        env:
+          PASSWORD: ci-password-123
         run: |
           mkdir -p /tmp/ci-panel/data
-          PASSWORD='ci-password-123'
           PANEL_CONFIG=/tmp/ci-panel/config.json PANEL_DATA_DIR=/tmp/ci-panel/data \
             node -e "
               const fs = require('fs');
@@ -123,4 +124,5 @@ jobs:
       - name: UI 回归
         env:
           PANEL_BASE: http://127.0.0.1:3099
+          PANEL_CI: '1'
         run: node tests/ui-test.mjs 'ci-password-123'

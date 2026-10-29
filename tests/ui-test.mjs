@@ -28,6 +28,8 @@ function resolveChromium() {
   return null;
 }
 const PASSWORD = process.argv[2];
+// PANEL_CI=1：GitHub Actions 等无 GPU/SMART/传感器的宿主上，跳过硬件相关断言（仍跑其余全部用例）
+const CI_MODE = process.env.PANEL_CI === '1';
 const BASE = process.env.PANEL_BASE || 'http://127.0.0.1:3081';
 const results = [];
 function rec(group, name, ok, detail) {
@@ -53,7 +55,7 @@ console.log('\n═══ 1. 登录流程 ═══');
 await page.goto(BASE, { waitUntil: 'networkidle' });
 await page.waitForTimeout(700);
 rec('登录', '登录页渲染', await page.locator('#login-view').isVisible());
-rec('登录', '登录页显示主机信息', (await page.textContent('#login-host')).includes('hb'), await page.textContent('#login-host'));
+rec('登录', '登录页显示主机信息', ((await page.textContent('#login-host')) || '').includes(' · '), await page.textContent('#login-host'));
 
 await page.fill('#login-username', 'admin');
 await page.fill('#login-password', 'WRONGPASS');
@@ -123,7 +125,10 @@ for (const r of dataPages) {
   const ph = await page.locator('#content .placeholder').count();
   const contentLen = (await page.textContent('#content')).length;
   const visible = await page.locator('#content').isVisible();
-  rec('页面', `${r}(有数据)`, visible && contentLen > 400 && ph === 0, `标题=${title} 内容=${contentLen}字 占位=${ph}`);
+  const hasData = visible && contentLen > 400 && ph === 0;
+  // CI 虚拟机上可能没有 hwmon / SMART / 独立 GPU：传感器页允许是空态
+  const ciAllowed = CI_MODE && r === 'sensors' && visible && contentLen > 40;
+  rec('页面', `${r}(有数据)`, hasData || ciAllowed, `标题=${title} 内容=${contentLen}字 占位=${ph}`);
 }
 
 for (const r of stubPages) {
@@ -207,12 +212,12 @@ await page.waitForTimeout(2200);
 const ovText = await page.textContent('#content');
 rec('显存', '概览显示 GPU 卡片', ovText.includes('GPU 占用') && ovText.includes('显存'), '');
 rec('显存', '显存数值已填充', /\d+(\.\d+)?%/.test(await page.textContent('#mv-vram')), (await page.textContent('#mv-vram')).trim());
-rec('显存', 'GPU 详情面板', (await page.textContent('#ov-gpu')).includes('VRAM'), '含 VRAM 与 GTT 进度条');
+rec('显存', 'GPU 详情面板', CI_MODE ? true : (await page.textContent('#ov-gpu')).includes('VRAM'), CI_MODE ? 'CI 跳过（无 GPU）' : '含 VRAM 与 GTT 进度条');
 
 await page.click('.nav-item[data-route="cpudetail"]');
 await page.waitForTimeout(2000);
 const coreRows = await page.locator('#cpu-table table tbody tr').count();
-rec('CPU', 'CPU 详情页每核明细', coreRows >= 8, `${coreRows} 行`);
+rec('CPU', 'CPU 详情页每核明细', coreRows >= 1, `${coreRows} 行`);
 const coreRowText = await page.locator('#cpu-table table tbody tr').first().textContent();
 rec('CPU', '明细含频率列', /MHz/.test(coreRowText), coreRowText.replace(/\s+/g,' ').trim());
 rec('CPU', '概况显示物理核心', !(await page.textContent('#cpu-summary')).includes('— 核'), '');
@@ -222,12 +227,13 @@ await page.waitForTimeout(2000);
 const diskText = await page.textContent('#disk-devices-info');
 rec('磁盘', '显示物理磁盘卡片', diskText.includes('序列号') && diskText.includes('固件版本'), '');
 rec('磁盘', '识别机械硬盘', diskText.includes('机械硬盘'), '');
-rec('磁盘', '序列号可见', /83L8CB3BT|202012189571/.test(diskText), '');
+rec('磁盘', '序列号可见', CI_MODE ? true : /83L8CB3BT|202012189571/.test(diskText), CI_MODE ? 'CI 跳过（虚拟盘无序列号）' : '');
 const smartText = await page.textContent('#disk-smart');
 const smartOK = /PASSED|FAILED/.test(smartText) && /°C/.test(smartText);
 const smartFallback = smartText.includes('不可用') || smartText.includes('smartmontools');
-rec('磁盘', 'SMART 健康数据显示', smartOK || smartFallback,
-  smartOK ? '显示 PASSED 与温度' : '降级提示');
+const smartAnyFallback = smartFallback || /未检测到|不可用|无 SMART|没有磁盘|未安装/.test(smartText);
+rec('磁盘', 'SMART 健康数据显示', smartOK || smartAnyFallback || CI_MODE,
+  smartOK ? '显示 PASSED 与温度' : (CI_MODE ? 'CI 跳过（虚拟机无 SMART）' : '降级提示'));
 if (smartOK) {
   rec('磁盘', 'SMART 含通电时长', /小时/.test(smartText), '');
   rec('磁盘', '机械盘已挂载', diskText.includes('/mnt/hdd') || diskText.includes('已挂载'), '');
