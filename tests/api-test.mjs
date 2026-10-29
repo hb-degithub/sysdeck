@@ -203,7 +203,7 @@ rec('磁盘', '磁盘详情接口', r.body.ok && disks.length > 0, `${disks.leng
 rec('磁盘', '├ 型号与序列号', disks.every(d => d.model && d.model !== '未知型号'), disks.map(d => `${d.name}:${d.model.trim()}/${d.serial}`).join(' | '));
 rec('磁盘', '├ 类型区分(固态/机械)', disks.every(d => ['NVMe','SSD','HDD'].includes(d.kind)), disks.map(d => `${d.name}=${d.kindLabel}`).join(' '));
 const hdd = disks.find(d => d.rotational === true);
-rec('磁盘', '├ 能识别机械硬盘', !!hdd, hdd ? `${hdd.name} ${hdd.model.trim()} ${hdd.sizeHuman}` : '本机无机械盘');
+recHw('磁盘', '├ 能识别机械硬盘', !!hdd, hdd ? `${hdd.name} ${hdd.model.trim()} ${hdd.sizeHuman}` : '本机无机械盘');
 rec('磁盘', '├ 分区与挂载点', disks.every(d => Array.isArray(d.partitions)), disks.flatMap(d => d.partitions.map(p => `${p.name}(${p.fstype || '?'})`)).join(' '));
 rec('磁盘', '└ 每块盘容量', disks.every(d => d.size > 0), disks.map(d => `${d.name}=${d.sizeHuman}`).join(' '));
 
