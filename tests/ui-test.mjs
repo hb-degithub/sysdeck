@@ -1,4 +1,32 @@
 import { chromium } from 'playwright-core';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+
+/**
+ * 解析 Chromium 可执行文件：
+ *  1. 环境变量 PANEL_CHROMIUM 显式指定（存在才用）
+ *  2. 本机开发者的 Playwright 缓存（存在才用）
+ *  3. 都没有则返回 null，交给 playwright 自己解析（CI 里 install 后即可）
+ */
+function resolveChromium() {
+  const explicit = process.env.PANEL_CHROMIUM;
+  if (explicit && fs.existsSync(explicit)) return explicit;
+  // 本机 Playwright 缓存（任意版本目录），找不到就交给 playwright 自己解析
+  const cacheDir = path.join(os.homedir(), '.cache', 'ms-playwright');
+  try {
+    for (const entry of fs.readdirSync(cacheDir)) {
+      if (!entry.startsWith('chromium-')) continue;
+      for (const sub of ['chrome-linux64/chrome', 'chrome-linux/chrome']) {
+        const candidate = path.join(cacheDir, entry, sub);
+        if (fs.existsSync(candidate)) return candidate;
+      }
+    }
+  } catch (e) {
+    /* 没有缓存目录 */
+  }
+  return null;
+}
 const PASSWORD = process.argv[2];
 const BASE = process.env.PANEL_BASE || 'http://127.0.0.1:3081';
 const results = [];
@@ -8,8 +36,8 @@ function rec(group, name, ok, detail) {
 }
 
 const browser = await chromium.launch({
-  // 可用 PANEL_CHROMIUM 指定 Chromium 路径；未指定时用 playwright 自带浏览器
-  ...(process.env.PANEL_CHROMIUM ? { executablePath: process.env.PANEL_CHROMIUM } : {}),
+  // 可用 PANEL_CHROMIUM 指定 Chromium 路径；未指定时交给 playwright 自行解析
+  ...(resolveChromium() ? { executablePath: resolveChromium() } : {}),
   args: ['--no-sandbox', '--disable-dev-shm-usage'],
 });
 const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 } });

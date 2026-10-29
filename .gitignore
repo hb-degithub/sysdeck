@@ -46,5 +46,6 @@ config/dsh-headless.patch.yml
 # 本机部署记录（含个人 IP/路径，不入库）
 docs/DEPLOY-local.md
 
-# 界面截图（含本机信息，暂不公开）
-docs/shots/
+# 界面截图：只公开演示实例（demo-*）的脱敏截图
+docs/shots/*
+!docs/shots/demo-*.png

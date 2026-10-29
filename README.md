@@ -1,5 +1,8 @@
 # SysDeck · 服务器控制面板
 
+[![CI](https://github.com/hb-degithub/sysdeck/actions/workflows/ci.yml/badge.svg)](https://github.com/hb-degithub/sysdeck/actions/workflows/ci.yml)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+
 单机服务器监控与管理面板，零 npm 依赖，Node.js 原生实现。可安装为 PWA，并已打包成 Android App。
 
 ## 特性
@@ -788,8 +791,31 @@ node tests/stability-test.mjs "<密码>"    # 稳定性与 200 次压测
 
 ## 界面
 
-> 截图暂未随仓库发布：界面截图中含有本机主机名、家目录与容器名等信息，脱敏后再补充。
-> 本地开发时启动面板自行查看即可。
+> 以下截图来自演示实例（主机名 `demo`、隔离数据目录），不含任何真实环境信息。
+
+| 概览（深色） | 概览（浅色） | 移动端 |
+|---|---|---|
+| ![概览](docs/shots/demo-overview.png) | ![浅色](docs/shots/demo-overview-light.png) | ![移动端](docs/shots/demo-overview-mobile.png) |
+
+| 实时图表 | 历史回看 | 磁盘 |
+|---|---|---|
+| ![实时](docs/shots/demo-realtime.png) | ![历史](docs/shots/demo-history.png) | ![磁盘](docs/shots/demo-disk.png) |
+
+| 网络 | 性能压测 | 告警 |
+|---|---|---|
+| ![网络](docs/shots/demo-network.png) | ![压测](docs/shots/demo-bench.png) | ![告警](docs/shots/demo-alerts.png) |
+
+| 下载器（二维码分享） | 设置 | 登录 |
+|---|---|---|
+| ![下载](docs/shots/demo-download.png) | ![设置](docs/shots/demo-settings.png) | ![登录](docs/shots/demo-login.png) |
+
+## 参与贡献 / 安全
+
+- 贡献指南（设计约束、如何跑测试）：[CONTRIBUTING.md](CONTRIBUTING.md)
+- 安全模型与部署建议（含高危开关、数据落盘、漏洞报告方式）：[SECURITY.md](SECURITY.md)
+
+> 面板登录即拥有服务器操作权限（文件 / 终端 / 可选 root helper），请只在可信网络使用，
+> 公网访问务必套 VPN 或反代 + HTTPS。
 
 ## 开源协议
 

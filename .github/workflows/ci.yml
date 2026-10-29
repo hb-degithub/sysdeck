@@ -1,0 +1,126 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  # 自包含测试：每个脚本自己在 /tmp 起隔离实例，不需要外部服务
+  self-contained:
+    name: 自包含回归
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        suite:
+          - collector-test
+          - console-url-test
+          - share-once-test
+          - remember-test
+          - download-test
+          - alerts-test
+          - backup-test
+          - chat-test
+          - dsh-sessions-test
+          - dsh-sdk-test
+          - helper-test
+          - b3-extras-test
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 依赖检查（zstd 用于 DSH 会话历史解码）
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq zstd
+      - name: 运行 ${{ matrix.suite }}
+        run: node tests/${{ matrix.suite }}.mjs
+
+  # 起一个真实面板实例（隔离目录），跑 API / 功能 / 鉴权回归
+  live-instance:
+    name: 实例级回归（api / feature）
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 准备隔离实例
+        run: |
+          mkdir -p /tmp/ci-panel/data
+          PASSWORD='ci-password-123'
+          PANEL_CONFIG=/tmp/ci-panel/config.json PANEL_DATA_DIR=/tmp/ci-panel/data \
+            node -e "
+              const fs = require('fs');
+              const { loadConfig, saveConfig, hashPassword } = require('./lib/config.js');
+              const cfg = loadConfig().config;
+              cfg.port = 3099;
+              cfg.panel.passwordSalt = require('crypto').randomBytes(16).toString('hex');
+              cfg.panel.passwordHash = hashPassword(process.env.PASSWORD, cfg.panel.passwordSalt);
+              cfg.panel.mustChangePassword = false;
+              saveConfig(cfg);
+            "
+      - name: 启动面板
+        run: |
+          PANEL_CONFIG=/tmp/ci-panel/config.json PANEL_DATA_DIR=/tmp/ci-panel/data PANEL_PORT=3099 \
+            nohup node server.js > /tmp/ci-panel/server.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:3099/api/public-info >/dev/null && break
+            sleep 1
+          done
+          # 等采集器出首样本，避免监控类断言抖动
+          sleep 4
+      - name: API 回归
+        env:
+          PANEL_BASE: http://127.0.0.1:3099
+        run: node tests/api-test.mjs 'ci-password-123'
+      - name: 功能回归（文件 / 压测 / 终端）
+        env:
+          PANEL_BASE: http://127.0.0.1:3099
+        run: node tests/feature-test.mjs 'ci-password-123'
+
+  # 浏览器交互回归：装 Playwright Chromium 后跑 UI 测试
+  ui:
+    name: 浏览器交互回归（ui）
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: 安装 Playwright Chromium
+        run: |
+          mkdir -p /tmp/pw && cd /tmp/pw
+          npm init -y >/dev/null 2>&1
+          npm i playwright-core@1 --no-audit --no-fund
+          npx playwright-core install --with-deps chromium
+      - name: 准备并启动面板
+        env:
+          PASSWORD: ci-password-123
+        run: |
+          ln -sfn /tmp/pw/node_modules node_modules
+          mkdir -p /tmp/ci-panel/data
+          PANEL_CONFIG=/tmp/ci-panel/config.json PANEL_DATA_DIR=/tmp/ci-panel/data \
+            node -e "
+              const cfg = require('./lib/config.js').loadConfig().config;
+              cfg.port = 3099;
+              cfg.panel.passwordSalt = require('crypto').randomBytes(16).toString('hex');
+              cfg.panel.passwordHash = require('./lib/config.js').hashPassword(process.env.PASSWORD, cfg.panel.passwordSalt);
+              cfg.panel.mustChangePassword = false;
+              require('./lib/config.js').saveConfig(cfg);
+            "
+          PANEL_CONFIG=/tmp/ci-panel/config.json PANEL_DATA_DIR=/tmp/ci-panel/data PANEL_PORT=3099 \
+            nohup node server.js > /tmp/ci-panel/server.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:3099/api/public-info >/dev/null && break
+            sleep 1
+          done
+          sleep 4
+      - name: UI 回归
+        env:
+          PANEL_BASE: http://127.0.0.1:3099
+        run: node tests/ui-test.mjs 'ci-password-123'
