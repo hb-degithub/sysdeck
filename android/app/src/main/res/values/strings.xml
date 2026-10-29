@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">服务器面板</string>
+
+    <!-- 设置页 -->
+    <string name="settings_title">设置</string>
+    <string name="settings_subtitle">管理多台服务器、自动更新、解锁方式与本地通知。地址支持 http/https，App 已允许明文流量。</string>
+    <string name="servers_title">服务器</string>
+    <string name="features_title">体验增强</string>
+    <string name="btn_add_server">＋ 添加服务器</string>
+    <string name="test_connection">测试连接</string>
+    <string name="btn_check_update">检查更新</string>
+    <string name="btn_downloads">下载列表</string>
+    <string name="btn_done">完成</string>
+    <string name="current_server">当前服务器：%1$s</string>
+    <string name="not_configured">尚未配置</string>
+    <string name="server_current_badge">当前</string>
+    <string name="switch_lock">启动时生物识别解锁</string>
+    <string name="switch_alerts">告警本地通知（每 15 分钟轮询）</string>
+
+    <!-- 服务器选择页 -->
+    <string name="server_picker_title">选择服务器</string>
+    <string name="server_picker_subtitle">点击要连接的面板服务器；可在「管理服务器」中增删改。</string>
+    <string name="server_manage">管理服务器</string>
+
+    <!-- 服务器对话框 / 提示 -->
+    <string name="dialog_add_server">添加服务器</string>
+    <string name="dialog_edit_server">编辑服务器</string>
+    <string name="hint_server_name">名称（可选，默认用主机名）</string>
+    <string name="hint_server_url">http://server:3081</string>
+    <string name="action_save">保存</string>
+    <string name="action_delete">删除</string>
+    <string name="action_edit">编辑</string>
+    <string name="action_cancel">取消</string>
+    <string name="server_invalid">地址无效，请填写 http:// 或 https:// 开头的地址</string>
+    <string name="server_exists">该地址已在列表中</string>
+    <string name="server_added">已添加服务器</string>
+    <string name="server_deleted">已删除服务器</string>
+    <string name="server_keep_one">至少保留一个服务器</string>
+    <string name="server_saved">已保存</string>
+    <string name="server_switch_title">切换服务器</string>
+    <string name="biometric_unavailable">设备未设置锁屏密码或没有可用的生物识别，无法开启</string>
+    <string name="notif_permission_hint">需要通知权限才能收到告警通知</string>
+
+    <!-- 清除登录状态 -->
+    <string name="clear_session">清除登录状态</string>
+    <string name="clear_session_title">清除登录状态？</string>
+    <string name="clear_session_message">将删除本机保存的面板登录 Cookie 与网页存储（含「30 天免登录」凭证）。下次打开面板需要重新登录。</string>
+    <string name="clear_session_confirm">清除</string>
+    <string name="clear_session_done">已清除登录状态，下次打开需重新登录</string>
+
+    <!-- 工具条 -->
+    <string name="tool_refresh">刷新</string>
+    <string name="tool_back">后退</string>
+    <string name="tool_panel">面板</string>
+    <string name="tool_download">下载</string>
+    <string name="tool_dsh">DSH</string>
+    <string name="tool_chat">聊天</string>
+    <string name="tool_settings">设置</string>
+    <string name="toolbar_desc">工具条</string>
+
+    <!-- 错误页 / 锁屏 -->
+    <string name="error_title">页面加载失败</string>
+    <string name="error_hint">请检查服务器是否运行、手机与服务器是否同一网络，或在「设置」中更换地址。</string>
+    <string name="retry">重试</string>
+    <string name="lock_title">已锁定</string>
+    <string name="lock_hint">需要验证身份才能继续使用「服务器面板」</string>
+    <string name="lock_unlock">解锁</string>
+    <string name="lock_failed">验证失败，请重试</string>
+
+    <!-- DSH 显示 -->
+    <string name="dsh_display_title">DSH 显示</string>
+    <string name="dsh_zoom_current">当前缩放：%1$d%%</string>
+    <string name="dsh_zoom_minus">−5%</string>
+    <string name="dsh_zoom_plus">+5%</string>
+    <string name="dsh_zoom_reset">恢复 100%</string>
+    <string name="dsh_zoom_preset">%1$d%%</string>
+    <string name="dsh_hint">DSH 控制台是桌面型页面：可调缩放或用双指缩放。完整控制台=直接打开 dsh web；面板 DSH 页=先打开面板内的 DSH 页面。</string>
+    <string name="switch_dsh_pinch">双指缩放（网页通用）</string>
+    <string name="dsh_open_mode">DSH 按钮打开方式</string>
+    <string name="dsh_open_console">完整控制台（默认）</string>
+    <string name="dsh_open_panel">面板 DSH 页</string>
+    <string name="dsh_zoom_toast">DSH 缩放 %1$d%%</string>
+    <string name="dsh_error_title">DSH 控制台打不开</string>
+    <string name="dsh_ssl_error_hint">外网访问时 DSH 控制台需要 HTTPS 主机名（tailnet 的 *.ts.net）。当前地址 SSL 握手失败，常见原因是控制台地址被推导成 https://&lt;裸IP&gt;，而 DSH Web 在该 IP 上是明文 HTTP。</string>
+    <string name="dsh_connect_error_hint">无法连接 DSH 控制台。若服务端返回 http://&lt;内网IP&gt;:3080，说明当前不在同一局域网；外网请使用 tailnet 主机名地址。</string>
+    <string name="dsh_error_url_line">尝试过的地址：%1$s（token 已脱敏）</string>
+    <string name="dsh_error_retry">重新获取地址</string>
+    <string name="dsh_error_panel">打开面板 DSH 页</string>
+    <string name="dsh_error_copy">复制地址</string>
+    <string name="dsh_error_copied">已复制脱敏地址</string>
+    <string name="dsh_url_degraded">服务端控制台地址异常（%1$s），已改用面板 DSH 页</string>
+    <string name="dsh_url_degraded_hint">建议升级服务端；面板 DSH 页不依赖控制台 HTTPS</string>
+    <string name="dsh_diag">控制台地址检测</string>
+    <string name="dsh_diag_title">控制台地址检测</string>
+    <string name="dsh_diag_result">mode：%1$s
+地址：%2$s</string>
+    <string name="dsh_diag_failed">获取失败：%1$s</string>
+
+    <!-- 自动更新 -->
+    <string name="update_checking">正在检查更新…</string>
+    <string name="update_latest">已是最新版本（%1$s）</string>
+    <string name="update_available">发现新版本</string>
+    <string name="update_download">下载更新</string>
+    <string name="update_later">稍后</string>
+    <string name="update_unavailable">自动更新不可用</string>
+    <string name="update_unavailable_hint">面板未提供 /api/app/update 接口。可打开发布页或浏览器手动下载新版 APK。</string>
+    <string name="update_open_release">打开发布页</string>
+    <string name="update_browser_download">浏览器下载</string>
+    <string name="update_downloading">开始下载更新 %1$s…</string>
+    <string name="update_download_failed">更新包下载失败：%1$s</string>
+    <string name="update_install_failed">无法打开安装器，请到系统文件管理器手动安装</string>
+    <string name="update_no_server">请先在设置里添加并选择服务器</string>
+
+    <!-- 下载列表 -->
+    <string name="downloads_title">下载</string>
+    <string name="downloads_empty">还没有下载记录。</string>
+    <string name="downloads_hint">点击条目打开文件，长按删除记录。文件保存在系统「下载」目录。</string>
+
+    <!-- 桌面小组件 -->
+    <string name="widget_name">服务器状态</string>
+    <string name="widget_placeholder">--</string>
+    <string name="widget_no_data">打开 App 后自动刷新</string>
+    <string name="widget_need_login">点击登录 / 打开 App</string>
+    <string name="widget_cpu">CPU %1$s%%</string>
+    <string name="widget_cpu_with_spec">CPU %1$s%% · %2$s</string>
+    <string name="widget_server_unknown">服务器</string>
+    <string name="cpu_info_ht">CPU：%1$d 核 %2$d 线程（超线程）</string>
+    <string name="cpu_info_no_ht">CPU：%1$d 核 %2$d 线程</string>
+    <string name="widget_mem">内存 %1$s%%</string>
+    <string name="widget_temp">温度 %1$s°C</string>
+    <string name="widget_load">负载 %1$s</string>
+    <string name="widget_updated">%1$s 更新</string>
+
+    <!-- 聊天页 -->
+    <string name="chat_title">聊天</string>
+    <string name="chat_sessions">会话</string>
+    <string name="chat_new">新建</string>
+    <string name="chat_delete">删除</string>
+    <string name="chat_send">发送</string>
+    <string name="chat_input_hint">输入消息…</string>
+    <string name="chat_new_session">新建会话</string>
+    <string name="chat_session_list">选择会话</string>
+    <string name="chat_no_sessions">还没有会话，点「新建」开始</string>
+    <string name="chat_empty_messages">暂无消息</string>
+    <string name="chat_thinking">思考中…</string>
+    <string name="chat_running">正在运行…</string>
+    <string name="chat_status_prefix">状态：%1$s</string>
+    <string name="chat_backend_missing">后端未提供聊天接口，请升级面板服务</string>
+    <string name="chat_dsh_disabled">服务端未开启 dsh.allowTask</string>
+    <string name="chat_busy">上一个任务还在运行</string>
+    <string name="chat_unauthorized">登录已失效，请回面板重新登录</string>
+    <string name="chat_create_failed">新建会话失败</string>
+    <string name="chat_send_failed">发送失败</string>
+    <string name="chat_delete_confirm">删除当前会话？</string>
+    <string name="chat_deleted">已删除会话</string>
+    <string name="chat_error">出错了</string>
+    <string name="chat_done">已完成</string>
+    <string name="chat_copy_hint">长按消息可复制</string>
+    <string name="chat_session_hint">会话：%1$s</string>
+
+    <!-- 聊天页（1.3.0：DSH 会话 / 能力 / 工作目录与模型） -->
+    <string name="chat_tab_app">应用聊天</string>
+    <string name="chat_tab_dsh">DSH 会话</string>
+    <string name="chat_caps">能力</string>
+    <string name="chat_caps_title">能力 / 插件</string>
+    <string name="chat_caps_loading">加载能力…</string>
+    <string name="chat_caps_unavailable">后端未提供能力接口</string>
+    <string name="chat_dsh_loading">加载 DSH 会话…</string>
+    <string name="chat_dsh_empty">没有可读取的 DSH 会话（接口未就绪或目录为空）</string>
+    <string name="chat_dsh_session_title">DSH 会话</string>
+    <string name="chat_back">返回</string>
+    <string name="chat_continue">继续对话</string>
+    <string name="chat_continue_sdk">继续对话（SDK）</string>
+    <string name="chat_sdk_unavailable">后端未提供 SDK 续聊</string>
+    <string name="chat_sdk_status">SDK 续聊：%1$s</string>
+    <string name="chat_open_console">在 DSH 控制台打开</string>
+    <string name="chat_continue_web">该会话由 DSH Web 创建，headless 无法续聊</string>
+    <string name="chat_history_loading">加载历史…</string>
+    <string name="chat_history_failed">会话历史不可用</string>
+    <string name="chat_console_failed">获取 DSH 控制台地址失败</string>
+    <string name="chat_new_title_hint">会话标题（可选）</string>
+    <string name="chat_new_cwd_hint">工作目录（默认面板根目录）</string>
+    <string name="chat_new_model">模型</string>
+    <string name="chat_new_default_model">默认模型（服务器）</string>
+
+    <!-- 告警通知 -->
+    <string name="notify_channel_alerts">服务器告警</string>
+    <string name="alert_notification_title">服务器告警</string>
+    <string name="alert_notification_fallback">面板有新的未处理告警</string>
+</resources>

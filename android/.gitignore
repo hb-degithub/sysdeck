@@ -1,0 +1,14 @@
+# Gradle / Android 构建产物
+.gradle/
+build/
+app/build/
+local.properties
+*.iml
+.idea/
+captures/
+*.apk
+*.aab
+*.hprof
+
+# 签名材料绝不入库（密码见 ~/.config/server-panel/android-signing.txt）
+keystore/

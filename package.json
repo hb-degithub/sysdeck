@@ -1,0 +1,16 @@
+{
+  "name": "sysdeck",
+  "version": "0.2.0",
+  "description": "SysDeck — 零依赖 Linux 服务器操作台：实时监控 / 文件 / 终端 / Docker / 压测 / 告警 / AI Agent 聊天，附 Android App",
+  "private": true,
+  "type": "commonjs",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {}
+}

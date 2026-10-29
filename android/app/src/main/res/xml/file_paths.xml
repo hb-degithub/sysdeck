@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- FileProvider 可共享的路径（自动更新 APK 放在 App 外部私有目录 updates/ 下） -->
+<paths>
+    <external-files-path
+        name="updates"
+        path="updates/" />
+    <cache-path
+        name="cache"
+        path="." />
+    <files-path
+        name="files"
+        path="." />
+</paths>

@@ -1,0 +1,155 @@
+{
+  "port": 3081,
+  "host": "0.0.0.0",
+  "panel": {
+    "title": "服务器控制面板",
+    "username": "admin",
+    "passwordHash": null,
+    "passwordSalt": null,
+    "mustChangePassword": true
+  },
+  "session": {
+    "secret": "",
+    "ttlSeconds": 43200,
+    "rememberDays": 30,
+    "rememberMax": 50
+  },
+  "sampleIntervalMs": 1000,
+  "retention": {
+    "rawMinutes": 10,
+    "archiveDays": 30
+  },
+  "thresholds": {
+    "cpuPercent": 90,
+    "memPercent": 90,
+    "diskPercent": 90,
+    "cpuTempC": 90
+  },
+  "helper": {
+    "socketPath": "/run/server-panel/helper.sock",
+    "secretFile": "/etc/server-panel/helper.secret",
+    "timeoutMs": 10000,
+    "enabled": true
+  },
+  "fileManager": {
+    "root": "/",
+    "allowWrite": true,
+    "trashRetentionDays": 7
+  },
+  "download": {
+    "shareTtlMinutes": 60,
+    "maxShares": 100,
+    "maxHits": 0
+  },
+  "alerts": {
+    "enabled": true,
+    "cooldownMinutes": 10,
+    "notifyOnRecover": true,
+    "rules": [
+      {
+        "id": "cpu-high",
+        "metric": "cpuPercent",
+        "op": ">",
+        "value": 90,
+        "durationSec": 60,
+        "severity": "warn",
+        "enabled": true
+      },
+      {
+        "id": "mem-high",
+        "metric": "memPercent",
+        "op": ">",
+        "value": 90,
+        "durationSec": 60,
+        "severity": "warn",
+        "enabled": true
+      },
+      {
+        "id": "disk-high",
+        "metric": "diskPercent",
+        "op": ">",
+        "value": 90,
+        "durationSec": 300,
+        "severity": "crit",
+        "enabled": true
+      },
+      {
+        "id": "cpu-temp-high",
+        "metric": "cpuTempC",
+        "op": ">",
+        "value": 90,
+        "durationSec": 30,
+        "severity": "crit",
+        "enabled": true
+      },
+      {
+        "id": "load-per-core-high",
+        "metric": "loadPerCore",
+        "op": ">",
+        "value": 1.5,
+        "durationSec": 300,
+        "severity": "warn",
+        "enabled": true
+      }
+    ]
+  },
+  "notify": {
+    "webhook": {
+      "enabled": false,
+      "type": "auto",
+      "url": ""
+    },
+    "email": {
+      "enabled": false,
+      "host": "",
+      "port": 587,
+      "secure": false,
+      "user": "",
+      "pass": "",
+      "from": "",
+      "to": ""
+    },
+    "ntfy": {
+      "enabled": false,
+      "url": "https://ntfy.sh",
+      "topic": ""
+    }
+  },
+  "backup": {
+    "auto": true,
+    "keep": 7,
+    "hour": 4
+  },
+  "appUpdate": {
+    "distDir": ""
+  },
+  "dsh": {
+    "enabled": true,
+    "home": "",
+    "bin": "",
+    "profile": "headless",
+    "allowTask": false,
+    "taskTimeoutMs": 300000,
+    "consoleUrlCustom": "",
+    "patch": "",
+    "credentialsFile": "",
+    "credentialsMaxBytes": 65536,
+    "env": {},
+    "lanHost": "",
+    "publicUrl": "",
+    "webHost": "",
+    "webPort": 3080,
+    "unit": "deepseek-harness",
+    "homeDir": "",
+    "cwd": "",
+    "taskBufferBytes": 262144,
+    "taskKeepMs": 1800000,
+    "taskMaxRetained": 20,
+    "allowSdkResume": false,
+    "sdkProfile": "sdk",
+    "sdkPresetPatches": [],
+    "sdkProvidersPatch": "",
+    "sdkTimeoutMs": 180000
+  },
+  "tls": null
+}

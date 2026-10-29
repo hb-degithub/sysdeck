@@ -1,0 +1,37 @@
+# headless 任务的模型路由补丁（`dsh --profile headless --patch <本文件>`）
+#
+# 背景：仓库外运行的 `dsh web` 可能配置了自定义 provider，而自动初始化的 headless
+# profile 只有内置 DeepSeek 官方路由；没有对应凭据时会报
+# `MISSING_CREDENTIAL: llm-deepseek: no API key ...`。
+# 这里把 web profile 里的 llm-pi-ai provider 与默认模型复制过来，让面板远程任务可跑。
+#
+# 用法：
+#   1. 复制本文件为 config/dsh-headless.patch.yml（已 gitignore，不会入库）
+#   2. 按你自己的 provider 改下面的 displayName / api / baseURL / models
+#   3. 在 config.json 里写 "dsh": { "patch": "<项目目录>/config/dsh-headless.patch.yml" }
+#   4. 密钥不要写在这里：写进 $DSH_HOME/.credentials.yaml 的 refs（键名对应 apiKeyEnv），
+#      面板启动任务时会把它注入子进程环境
+#
+# 维护：改了 DSH Web「设置 → 模型」里的 provider / endpoint / 默认模型后，需要同步本文件
+# （内容取自 $DSH_HOME/profiles/web/cordis.patch.yml 的 llm-pi-ai 与 agent-default-model 两段）。
+- id: llm-pi-ai
+  name: "@deepseek-ai/dsh-llm-pi-ai"
+  config:
+    providers:
+      myprovider:
+        displayName: 我的服务
+        apiKeyEnv: MY_LLM_API_KEY
+        api: openai-responses
+        baseURL: https://llm.example.com/v1
+        models:
+          - id: deepseek-chat
+            name: deepseek-chat
+            contextWindow: 65536
+            input:
+              - text
+      # 需要多个 provider 时按上面的写法并列
+- id: agent-default-model
+  name: "@deepseek-ai/dsh-agent-default-model"
+  config:
+    provider: myprovider
+    model: deepseek-chat

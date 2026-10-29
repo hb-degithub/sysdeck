@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 启动瞬间的深色底 #0d1117 + 居中应用图标，避免白屏 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/bg_dark" />
+    <item
+        android:width="120dp"
+        android:height="120dp"
+        android:drawable="@drawable/ic_launcher_art"
+        android:gravity="center" />
+</layer-list>
